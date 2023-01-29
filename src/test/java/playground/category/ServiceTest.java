@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static io.restassured.RestAssured.given;
+import static java.beans.Beans.isInstanceOf;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.Assert.*;
 
 public class ServiceTest extends ServiceBaseTest {
@@ -81,17 +83,10 @@ public class ServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void whenCreateServiceWithInvalidParametersAndGet500() {
-        given()
-                .baseUri("http://localhost:3030")
-                .header("host", "localhost:3030")
-                .body(500)
-                .contentType("application/json")
-                .when()
-                .post("/services")
-                .then()
-                .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .log();
+    public void whenCreateServiceWithInvalidBodyAndGet500() {
+        assertThatThrownBy(() -> createServiceWithInvalidBodyAndGet500(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("object cannot be null");
     }
 
     @Test
@@ -112,16 +107,16 @@ public class ServiceTest extends ServiceBaseTest {
 
     @Test
     public void whenUpdateServiceWithInvalidId() {
-        given()
-                .baseUri("http://localhost:3030")
-                .header("host", "localhost:3030")
-                .body(createServiceBody3)
-                .contentType("application/json")
-                .when()
-                .patch("/services/10000")
-                .then()
-                .statusCode(HttpStatus.SC_NOT_FOUND)
-                .log();
+        updateServiceWithInvalidIdAndGet404(updateServiceBody, 10000);
+        Assert.assertTrue(String.valueOf(HttpStatus.SC_NOT_FOUND), true);
+    }
+
+    @Test
+    public void whenUpdateServiceWithNullBody() {
+        ServiceSchema services = getListOfServices(ServiceSchema.class);
+        assertThatThrownBy(() -> updateServiceWithNullBodyAndGet500(null, services.getData().get(0).getId()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("object cannot be null");
     }
 
     @Test

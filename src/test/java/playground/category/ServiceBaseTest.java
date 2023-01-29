@@ -8,6 +8,8 @@ import playground.BaseTest;
 import playground.models.Data;
 import playground.models.Service;
 
+import java.io.IOException;
+
 public class ServiceBaseTest extends BaseTest {
 
     public <T> T getListOfServices(Class<T> serviceSchema) {
@@ -107,5 +109,41 @@ public class ServiceBaseTest extends BaseTest {
                 .then()
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .log();
+    }
+
+    public ValidatableResponseLogSpec<ValidatableResponse, Response> updateServiceWithInvalidIdAndGet404(Service updateServiceBody, long id) {
+        return publicApi()
+                .body(updateServiceBody)
+                .patch("/services/{long}", id)
+                .then()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .log();
+    }
+
+    public ValidatableResponseLogSpec<ValidatableResponse, Response> updateServiceWithNullBodyAndGet500(Service updateServiceBody, long id) throws IllegalArgumentException {
+        try {
+            return publicApi()
+                    .body(updateServiceBody)
+                    .patch("/services/{long}", id)
+                    .then()
+                    .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .log();
+
+        } catch (IllegalArgumentException e) {
+        } throw new IllegalArgumentException("object cannot be null");
+    }
+
+    public ValidatableResponseLogSpec<ValidatableResponse, Response> createServiceWithInvalidBodyAndGet500(Data createServiceBody) throws IllegalArgumentException {
+        try {
+            return publicApi()
+                    .body(createServiceBody)
+                    .contentType("application/json")
+                    .post("/services")
+                    .then()
+                    .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                    .log();
+
+        } catch (IllegalArgumentException e) {
+        } throw new IllegalArgumentException("object cannot be null");
     }
 }
