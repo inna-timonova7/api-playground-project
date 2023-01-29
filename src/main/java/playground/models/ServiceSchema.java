@@ -1,24 +1,29 @@
 package playground.models;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class ServiceSchema {
     private int total;
     private int limit;
     private int skip;
-    @JsonProperty("Data")
+
     private List<Data> data;
 
     public ServiceSchema() {
-        super();
     }
 
-    public ServiceSchema (int total, int limit, int skip, List<Data> data) {
+    public ServiceSchema(int total, int limit, int skip, List<Data> data) {
         this.total = total;
         this.limit = limit;
         this.skip = skip;
-        this.data = (List<Data>) data;
+        this.data = data;
+    }
+
+    public List<Data> getData() {
+        return data;
+    }
+
+    public void setData(List<Data> data) {
+        this.data = data;
     }
 
     public int getTotal() {

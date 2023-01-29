@@ -5,10 +5,13 @@ public class Data {
 
     private int id;
     private String name;
-    private LocalDateTime updatedAt;
-    private LocalDateTime createdAt;
+    private String updatedAt;
+    private String createdAt;
 
-    public Data(int id, String name, LocalDateTime updatedAt, LocalDateTime createdAt) {
+    public Data() {
+    }
+
+    public Data(int id, String name, String updatedAt, String createdAt) {
         this.id = id;
         this.name = name;
         this.updatedAt = updatedAt;
@@ -31,19 +34,19 @@ public class Data {
         this.name = name;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 }

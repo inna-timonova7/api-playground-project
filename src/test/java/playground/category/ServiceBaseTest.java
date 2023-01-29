@@ -5,13 +5,7 @@ import org.apache.http.HttpStatus;
 import playground.BaseTest;
 import playground.models.Service;
 
-import java.util.*;
-
 public class ServiceBaseTest extends BaseTest {
-
-    private final Service createServiceBody = new Service("NewService");
-    private final Service updateServiceBody = new Service("UpdatedService");
-    private final int limit = 3;
 
     public <T> T getListOfServices(Class<T> serviceSchema) {
         return publicApi()
@@ -24,18 +18,44 @@ public class ServiceBaseTest extends BaseTest {
 
     public <T> T getListOfServicesWithLimitParam(int limit, Class<T> serviceSchema) {
         return publicApi()
-                .queryParam(String.valueOf(limit))
+                .given()
+                .queryParam("$limit", limit)
+                .when()
                 .get("/services")
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .extract()
-                .body()
                 .as(serviceSchema);
     }
 
-    public <T> T getServiceId(UUID id, Class<T> serviceId) {
+    public <T> T getListOfServicesWithLimitAndSkipParam(int limit, int skip, Class<T> serviceSchema) {
         return publicApi()
-                .get("/services/{UUID}", id)
+                .given()
+                .queryParam("$limit", limit)
+                .queryParam("$skip", skip)
+                .when()
+                .get("/services")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .as(serviceSchema);
+    }
+
+    public <T> T getListOfServicesWithSkipParam(int skip, Class<T> serviceSchema) {
+        return publicApi()
+                .given()
+                .queryParam("$skip", skip)
+                .when()
+                .get("/services")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .as(serviceSchema);
+    }
+
+    public <T> T getServiceId(long id, Class<T> serviceId) {
+        return publicApi()
+                .get("/services/{long}", id)
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .extract()
@@ -53,20 +73,20 @@ public class ServiceBaseTest extends BaseTest {
                 .as(createdService);
     }
 
-    public Service callUpdateServiceRequestAndExtractResponse (Service updateServiceBody, Class<Service> updatedService, UUID id) {
+    public <T> T callUpdateServiceRequestAndExtractResponse(Service updateServiceBody, long id, Class<T> updatedService) {
         return publicApi()
                 .body(updateServiceBody)
                 .contentType("application/json")
-                .patch("/services/{UUID}", id)
+                .patch("/services/{long}", id)
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .as(updatedService);
     }
 
-    public Response removeService(UUID id) {
+    public Response removeService(long id) {
         return (Response) publicApi()
                 .contentType("application/json")
-                .delete("/services/{UUID}", id);
+                .delete("/services/{long}", id);
     }
 }

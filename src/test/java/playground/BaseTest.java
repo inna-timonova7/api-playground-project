@@ -1,8 +1,6 @@
 package playground;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
@@ -13,10 +11,8 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
 
-import java.util.UUID;
-
 public class BaseTest {
-    protected static final String platformUrl = System.getProperty("localhost.target.platform.url", "localhost:3030");
+    protected static final String PLATFORM_URL = System.getProperty("localhost:3030.target.platform.url", "localhost:3030");
 
     public BaseTest() {
         RestAssured.config = RestAssuredConfig
@@ -25,20 +21,6 @@ public class BaseTest {
                         new ObjectMapperConfig().jackson2ObjectMapperFactory(
                                 (cls, charset) -> {
                                     SimpleModule module = new SimpleModule();
-//                                            .addDeserializer(UUID.class, new StringUUIDDeserializer())
-//                                            .addSerializer(UUID.class, new UUIDStringSerializer())
-//                                            .addDeserializer(ScheduleItemType.class, new
-//                                            ScheduleItemTypeDeserializer())
-//                                            .addDeserializer(ZonedTime.class, new ZonedTimeDeserializer())
-//                                            .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer())
-//                                            .addDeserializer(Duration.class, new JsonDeserializer<>() {
-//                                                @Override
-//                                                public Duration deserialize(JsonParser p, DeserializationContext
-//                                                ctxt) {
-//                                                    return Duration.ZERO;
-//                                                }
-//                                            });
-
                                     return new ObjectMapper()
                                             .findAndRegisterModules()
                                             .registerModule(module)
@@ -59,12 +41,8 @@ public class BaseTest {
 
     protected RequestSpecification publicApi() {
         return RestAssured.given()
-//                .basePath("/api")
-                .baseUri("http://" + platformUrl)
+                .baseUri("http://" + PLATFORM_URL)
                 .accept("application/json")
-                .header("host", platformUrl);
+                .header("host", PLATFORM_URL);
     }
-//    protected RequestSpecification publicApiXML() {
-//        return publicApi().accept("application/xml");
-//    }
 }
