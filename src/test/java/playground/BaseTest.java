@@ -43,6 +43,7 @@ public class BaseTest {
         return RestAssured.given()
                 .baseUri("http://" + PLATFORM_URL)
                 .accept("application/json")
+                .contentType("application/json")
                 .header("host", PLATFORM_URL);
     }
 }

@@ -1,8 +1,11 @@
 package playground.category;
 
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
+import io.restassured.response.ValidatableResponseLogSpec;
 import org.apache.http.HttpStatus;
 import playground.BaseTest;
+import playground.models.Data;
 import playground.models.Service;
 
 public class ServiceBaseTest extends BaseTest {
@@ -76,7 +79,6 @@ public class ServiceBaseTest extends BaseTest {
     public <T> T callUpdateServiceRequestAndExtractResponse(Service updateServiceBody, long id, Class<T> updatedService) {
         return publicApi()
                 .body(updateServiceBody)
-                .contentType("application/json")
                 .patch("/services/{long}", id)
                 .then()
                 .statusCode(HttpStatus.SC_OK)
@@ -86,7 +88,24 @@ public class ServiceBaseTest extends BaseTest {
 
     public Response removeService(long id) {
         return (Response) publicApi()
-                .contentType("application/json")
                 .delete("/services/{long}", id);
+    }
+
+    public ValidatableResponseLogSpec<ValidatableResponse, Response> get400ErrorByWrongIdGet404(long id) {
+        return publicApi()
+                .get("/services/{long}", id)
+                .then()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .log();
+    }
+
+    public ValidatableResponseLogSpec<ValidatableResponse, Response> createServiceWithInvalidParametersGet400(Data createServiceBody) {
+        return publicApi()
+                .body(createServiceBody)
+                .contentType("application/json")
+                .post("/services")
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .log();
     }
 }

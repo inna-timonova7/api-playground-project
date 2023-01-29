@@ -1,4 +1,5 @@
 package playground.category;
+import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -8,6 +9,8 @@ import playground.models.ServiceSchema;
 
 import java.util.ArrayList;
 import java.util.Objects;
+
+import static io.restassured.RestAssured.given;
 import static org.junit.Assert.*;
 
 public class ServiceTest extends ServiceBaseTest {
@@ -16,6 +19,8 @@ public class ServiceTest extends ServiceBaseTest {
 
     private final Service createServiceBody = new Service("NewService");
     private final Service createServiceBody2 = new Service("KamikazeService");
+
+    private final Data createServiceBody3 = new Data();
     private final Service updateServiceBody = new Service("UpdatedService");
     private final int limit1 = 3;
     private final int limit2 = 0;
@@ -59,12 +64,40 @@ public class ServiceTest extends ServiceBaseTest {
     }
 
     @Test
+    public void whenGetServiceByWrongId() {
+        ServiceSchema services = getListOfServices(ServiceSchema.class);
+        get400ErrorByWrongIdGet404(0);
+        Assert.assertTrue(String.valueOf(HttpStatus.SC_NOT_FOUND), true);
+    }
+
+    @Test
     public void whenCreateService() {
         Data createdService = createService(createServiceBody, Data.class);
         assertNotNull(createdService);
         ServiceSchema services = getListOfServices(ServiceSchema.class);
         Assert.assertEquals(createdService.getName(), "NewService");
         Assert.assertTrue(String.valueOf(services.getData().stream().filter(data -> Objects.equals(data.getName(), "NewService"))), true);
+        removeService(createdService.getId());
+    }
+
+    @Test
+    public void whenCreateServiceWithInvalidParametersAndGet500() {
+        given()
+                .baseUri("http://localhost:3030")
+                .header("host", "localhost:3030")
+                .body(500)
+                .contentType("application/json")
+                .when()
+                .post("/services")
+                .then()
+                .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                .log();
+    }
+
+    @Test
+    public void whenCreateServiceWithInvalidParameters2() {
+        createServiceWithInvalidParametersGet400(createServiceBody3);
+        Assert.assertTrue(String.valueOf(HttpStatus.SC_BAD_REQUEST), true);
     }
 
     @Test
@@ -78,6 +111,20 @@ public class ServiceTest extends ServiceBaseTest {
     }
 
     @Test
+    public void whenUpdateServiceWithInvalidId() {
+        given()
+                .baseUri("http://localhost:3030")
+                .header("host", "localhost:3030")
+                .body(createServiceBody3)
+                .contentType("application/json")
+                .when()
+                .patch("/services/10000")
+                .then()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .log();
+    }
+
+    @Test
     public void whenRemoveService() {
         Data createdService = createService(createServiceBody2, Data.class);
         assertNotNull(createdService);
@@ -88,7 +135,14 @@ public class ServiceTest extends ServiceBaseTest {
         Assert.assertFalse(String.valueOf(services.getData().stream().filter(data -> Objects.equals(data.getName(), "KamikazeService"))), false);
     }
 
-    public void removeService() {
-        removeService();
+    @Test
+    public void whenRemoveAlreadyRemovedService() {
+        Data createdService = createService(createServiceBody2, Data.class);
+        assertNotNull(createdService);
+        createdService.getId();
+        removeService(createdService.getId());
+        removeService(createdService.getId())
+                .then()
+                .statusCode(HttpStatus.SC_NOT_FOUND);
     }
 }
