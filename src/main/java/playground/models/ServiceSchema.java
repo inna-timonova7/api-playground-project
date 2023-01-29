@@ -1,29 +1,32 @@
 package playground.models;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Time;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class ServiceSchema {
-    private int totalCount;
+    private int total;
     private int limit;
     private int skip;
-    private Class data;
+    @JsonProperty("Data")
+    private List<Data> data;
 
-//    public ServiceSchema (int totalCount, int limit, int skip, Class data) {
-//        this.totalCount = totalCount;
-//        this.limit = limit;
-//        this.skip = skip;
-//        this.data = Data;
-//    }
-
-    public int getTotalCount() {
-        return totalCount;
+    public ServiceSchema() {
+        super();
     }
 
-    public void setTotalCount(int totalCount) {
-        this.totalCount = totalCount;
+    public ServiceSchema (int total, int limit, int skip, List<Data> data) {
+        this.total = total;
+        this.limit = limit;
+        this.skip = skip;
+        this.data = (List<Data>) data;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int totalCount) {
+        this.total = totalCount;
     }
 
     public int getLimit() {
@@ -40,19 +43,5 @@ public class ServiceSchema {
 
     public void setSkip(int skip) {
         this.skip = skip;
-    }
-
-    class Data {
-        private int id;
-        private String name;
-        private Date updatedAt;
-        private Date createdAt;
-
-        public Data(int id, String name, Date updatedAt, Date createdAt) {
-            this.id = id;
-            this.name = name;
-            this.updatedAt = updatedAt;
-            this.createdAt = createdAt;
-        }
     }
 }
