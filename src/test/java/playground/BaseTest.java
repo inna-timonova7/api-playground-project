@@ -12,7 +12,9 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.specification.RequestSpecification;
 
 public class BaseTest {
-    protected static final String PLATFORM_URL = System.getProperty("localhost:3030.target.platform.url", "localhost:3030");
+    protected static final String PLATFORM_URL = System.getProperty(
+            "localhost:3030.target.platform.url",
+            "localhost:3030");
 
     public BaseTest() {
         RestAssured.config = RestAssuredConfig
@@ -24,7 +26,8 @@ public class BaseTest {
                                     return new ObjectMapper()
                                             .findAndRegisterModules()
                                             .registerModule(module)
-                                            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+                                            .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS,
+                                                    false)
                                             .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS,
                                                     false);
                                 }

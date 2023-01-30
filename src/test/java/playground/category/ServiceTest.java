@@ -1,17 +1,16 @@
 package playground.category;
+
 import org.apache.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Test;
-
 import playground.models.Data;
 import playground.models.Service;
 import playground.models.ServiceSchema;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
-import static io.restassured.RestAssured.given;
-import static java.beans.Beans.isInstanceOf;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.Assert.*;
 
@@ -21,8 +20,9 @@ public class ServiceTest extends ServiceBaseTest {
 
     private final Service createServiceBody = new Service("NewService");
     private final Service createServiceBody2 = new Service("KamikazeService");
-
     private final Data createServiceBody3 = new Data();
+
+    private final Service createServiceBody4 = new Service(createAlphabetString(120, 200));
     private final Service updateServiceBody = new Service("UpdatedService");
     private final int limit1 = 3;
     private final int limit2 = 0;
@@ -78,7 +78,8 @@ public class ServiceTest extends ServiceBaseTest {
         assertNotNull(createdService);
         ServiceSchema services = getListOfServices(ServiceSchema.class);
         Assert.assertEquals(createdService.getName(), "NewService");
-        Assert.assertTrue(String.valueOf(services.getData().stream().filter(data -> Objects.equals(data.getName(), "NewService"))), true);
+        Assert.assertTrue(String.valueOf(services.getData().stream().filter(data -> Objects.equals(data.getName(),
+                "NewService"))), true);
         removeService(createdService.getId());
     }
 
@@ -90,16 +91,22 @@ public class ServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void whenCreateServiceWithInvalidParameters2() {
+    public void whenCreateServiceWithEmptyBodyParameter() {
         createServiceWithInvalidParametersGet400(createServiceBody3);
+        Assert.assertTrue(String.valueOf(HttpStatus.SC_BAD_REQUEST), true);
+    }
+
+    @Test
+    public void whenCreateServiceWithTooLongBodyParameter() {
+        createServiceWithTooLongBodyAndGet400(createServiceBody4);
         Assert.assertTrue(String.valueOf(HttpStatus.SC_BAD_REQUEST), true);
     }
 
     @Test
     public void whenUpdateService() {
         ServiceSchema services = getListOfServices(ServiceSchema.class);
-        Data serviceById = getServiceId(services.getData().get(0).getId(), Data.class);
-        Data updatedService = callUpdateServiceRequestAndExtractResponse(updateServiceBody, services.getData().get(0).getId(), Data.class);
+        Data updatedService = callUpdateServiceRequestAndExtractResponse(updateServiceBody,
+                services.getData().get(0).getId(), Data.class);
         assertNotNull(updatedService);
         Assert.assertEquals(updatedService.getName(), "UpdatedService");
         Assert.assertEquals(updatedService.getId(), services.getData().get(0).getId());
@@ -123,21 +130,32 @@ public class ServiceTest extends ServiceBaseTest {
     public void whenRemoveService() {
         Data createdService = createService(createServiceBody2, Data.class);
         assertNotNull(createdService);
-        createdService.getId();
         removeService(createdService.getId());
         ServiceSchema services = getListOfServices(ServiceSchema.class);
         Assert.assertFalse(String.valueOf(createdService.getId()), false);
-        Assert.assertFalse(String.valueOf(services.getData().stream().filter(data -> Objects.equals(data.getName(), "KamikazeService"))), false);
+        Assert.assertFalse(String.valueOf(services.getData().stream().filter(data -> Objects.equals(data.getName(),
+                "KamikazeService"))), false);
     }
 
     @Test
     public void whenRemoveAlreadyRemovedService() {
         Data createdService = createService(createServiceBody2, Data.class);
         assertNotNull(createdService);
-        createdService.getId();
         removeService(createdService.getId());
         removeService(createdService.getId())
                 .then()
                 .statusCode(HttpStatus.SC_NOT_FOUND);
+    }
+
+    private String createAlphabetString(int minLength, int maxLength) {
+        Random rnd = new Random();
+
+        int stringLength = minLength + rnd.nextInt(maxLength);
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < stringLength; ++i) {
+            builder.append((char) ('a' + rnd.nextInt(26)));
+        }
+
+        return builder.toString();
     }
 }

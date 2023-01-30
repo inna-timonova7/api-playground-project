@@ -78,7 +78,8 @@ public class ServiceBaseTest extends BaseTest {
                 .as(createdService);
     }
 
-    public <T> T callUpdateServiceRequestAndExtractResponse(Service updateServiceBody, long id, Class<T> updatedService) {
+    public <T> T callUpdateServiceRequestAndExtractResponse(Service updateServiceBody, long id,
+                                                            Class<T> updatedService) {
         return publicApi()
                 .body(updateServiceBody)
                 .patch("/services/{long}", id)
@@ -111,6 +112,16 @@ public class ServiceBaseTest extends BaseTest {
                 .log();
     }
 
+    public ValidatableResponseLogSpec<ValidatableResponse, Response> createServiceWithTooLongBodyAndGet400(Service createServiceBody) {
+        return publicApi()
+                .body(createServiceBody)
+                .contentType("application/json")
+                .post("/services")
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .log();
+    }
+
     public ValidatableResponseLogSpec<ValidatableResponse, Response> updateServiceWithInvalidIdAndGet404(Service updateServiceBody, long id) {
         return publicApi()
                 .body(updateServiceBody)
@@ -130,7 +141,9 @@ public class ServiceBaseTest extends BaseTest {
                     .log();
 
         } catch (IllegalArgumentException e) {
-        } throw new IllegalArgumentException("object cannot be null");
+            System.getLogger("Error");
+        }
+        throw new IllegalArgumentException("object cannot be null");
     }
 
     public ValidatableResponseLogSpec<ValidatableResponse, Response> createServiceWithInvalidBodyAndGet500(Data createServiceBody) throws IllegalArgumentException {
@@ -142,8 +155,11 @@ public class ServiceBaseTest extends BaseTest {
                     .then()
                     .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
                     .log();
-
         } catch (IllegalArgumentException e) {
-        } throw new IllegalArgumentException("object cannot be null");
+            System.getLogger("Error");
+        }
+        throw new IllegalArgumentException("object cannot be null");
     }
+
+
 }
